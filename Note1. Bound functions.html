@@ -1,0 +1,381 @@
+<!DOCTYPE HTML>
+<html lang="ru-RU">
+<head>
+  <meta charset="UTF-8">
+		<title>Preview</title> 
+		<style type="text/css">           
+            html {
+                margin:0;
+                padding:0;
+                border:0;
+                vertical-align:
+                baseline;
+                overflow:hidden;
+                background-color:#f2f2f2;
+                color:#3c3c3c;
+                font-size:62.5%;
+                line-height: 2.4em;
+            }
+            body {
+                margin:0;
+                padding:0;
+                border:0;
+                vertical-align: baseline;
+            }
+            a { color:#308bd8;font-weight:bold;text-decoration:none; }
+            a:hover { text-decoration:underline; }
+            h1, h2 {
+                margin-bottom: 10px;
+            }
+            h3, h4, h5, h6 {
+                margin-bottom: 5px;
+            }
+            hr {
+                width: 90%;
+                margin: 3em auto;
+                border: 0;
+                color: #eee;
+                background-color: #ccc;
+                height: 1px;
+                -webkit-box-shadow:0px 1px 0px rgba(255, 255, 255, 0.75);
+            }
+            li {
+                margin-bottom: 10px;
+            }
+            pre {
+                margin: 0 0 30px 0;
+                width: 100%;
+                overflow: hidden;
+                padding: 3px 10px 3px 20px;
+                -webkit-border-radius: 3px;
+                background-color: #eee;
+                border: 1px solid #ddd;
+            }
+            code {
+                font-size: 1.1em;
+                padding: 2px;
+                -webkit-border-radius: 3px;
+                background-color: #eee;
+                border: 1px solid #ddd;
+            }
+            pre code {
+                border: none;
+                padding: 0;
+                background-color: transparent;
+                -webkit-border-radius: 0;
+            }
+            p {
+                margin-bottom: 20px;
+            }
+            blockquote {
+                margin-left: auto;
+                margin-right: 0;
+                width: 95%;
+                padding: 0 10px;
+                border-left: 3px solid #ddd;
+                color: #777;
+            }
+            table {
+                margin-left: auto;
+                margin-right: auto;
+                border-bottom: 1px solid #ddd;
+                border-right: 1px solid #ddd;
+                border-spacing: 0;
+                -webkit-box-shadow: 0 2px 4px #999;
+            }
+            table th {
+                padding: 3px 10px;
+                background-color: #eee;
+                border-top: 1px solid #ddd;
+                border-left: 1px solid #ddd;
+            }
+            table tr {
+            }
+            table td {
+                padding: 3px 10px;
+                border-top: 1px solid #ddd;
+                border-left: 1px solid #ddd;
+            }
+            caption {
+                font-size: 1.2em;
+                font-weight: bold;
+                margin-bottom: 5px;
+            }
+            .markdowncitation {
+            }
+            .footnote {
+                font-size: 0.8em;
+                vertical-align: super;
+            }
+            .footnotes ol {
+                font-weight: bold;
+            }
+            .footnotes ol li {
+                
+            }
+            .footnotes ol li p {
+                font-weight: normal;
+            }
+            /* custom formatting classes */
+            .shadow {
+                -webkit-box-shadow: 0 2px 4px #999;
+            }
+            
+            #wrapper {
+                position: fixed;
+                height: 100%;
+                overflow-y: scroll;
+                overflow-x: hidden;
+                font-size: 1.0em;
+                width: 99.9%;
+                margin-right: 5px;
+            }
+			#content {
+                margin: 0 50px 0 50px;
+                padding: 30px 0 30px 0;
+                font-family: Cochin, Palatino, Georgia, serif;
+                font-size: 1.7em;
+                width: 850px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+            #content img { display: block; margin: 1em auto;border: none;max-width:100%; }
+			#wrapper::-webkit-scrollbar { width:8px;height:10px;-webkit-transition:all .45s ease-in; }
+			#wrapper::-webkit-scrollbar-button:start:decrement, #wrapper::-webkit-scrollbar-button:end:increment { height:0px;display:block;background-color:transparent; }
+			#wrapper::-webkit-scrollbar-track-piece { background-color:transparent;-webkit-border-radius:6px; }
+			#wrapper::-webkit-scrollbar-thumb:vertical { height:50px;background-color:#c8c8c8;-webkit-border-radius:6px;-webkit-transition:all .45s ease-in; }
+            </style>
+	</head> 
+    <body> 
+        <div id="top-fader"></div> 
+        <div id="wrapper"> 
+            <div id="content">
+
+<h1 id="ecmascript.boundfunctions.">Заметка №1. ECMAScript. Bound functions.</h1>
+
+<p>Как мы уже знаем, в редакции <code>ECMA-262-5</code> был стандартизирован метод <code>bind</code>. Источником для текущей версии послужил одноименный метод из библиотеки <a href="http://www.prototypejs.org/">Prototype.js</a>, но имеющий некоторые отличия. Основное предназначение хорошо известно и удачно используется в <code>ES3</code>. Главная задача данной заметки — показать детали и разницу в реализации <code>ES5</code>.</p>
+
+<h4>Цели.</h4>
+
+<p><code>Function.prototype.bind</code> имеет два предназначения: статическое связывание (<code>bound</code>) значения <code>this</code> функции и частичное применение (<code>partial application</code>).</p>
+
+<h4 id="this.">Связывание значения this.</h4>
+
+<p>Основным предназначением метода <code>bind</code> является статическое связывание значения <code>this</code> функции в последующих вызовах. Как мы уже знаем, значение <code>this</code> может изменяться при различных вызовах функции. Т.о. главной целью <code>bind</code> является зафиксировать значение <code>this</code>. Это может пригодиться, когда мы хотим использовать метод объекта в качестве функции обработчика (<code>event handler</code>) какого-либо события.</p>
+
+<pre><code>var widget = {
+    state: {...},
+    onClick: function onWidgetClick(event) {
+        if (this.state.active) {
+            ...
+        }
+    }
+};
+
+document.getElementById('widget').onclick = widget.onClick.bind(widget);</code></pre>
+
+<p>Для простоты, обработчик устанавливается присваиванием атрибуту <code>onclick</code>, в реальных же условиях, лучше воспользоваться методом <code>addEventListener</code> или <code>attachEvent</code>.  В примере показано как можно выставить значение <code>this</code>, чтобы при вызове обработчика оно указывало на объект <code>widget</code>.</p>
+
+<h4>Частичное применение.</h4>
+
+<p>Метод <code>bind</code> также может использоваться для каррирования (<a href="http://ru.wikipedia.org/wiki/%D0%9A%D0%B0%D1%80%D1%80%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5">currying</a>, в математике это называется <em>частичным применением</em> функции). Это техника преобразования функции от множества аргументов в цепочку вложенных функций с единственным аргументом. Это означает, что мы можем создать функцию, основанную на других функциях и некоторые из аргументов этой новой функции могут быть предустановлены. Применение такой функции с частью аргументов называется <em>частичным применением</em> функции.</p>
+
+<pre><code>function foo(x, y) {
+   //partial
+   if (typeof y == 'undefined') {
+       return function partialFoo(y) {
+           //complete
+           return x + y;
+       };
+   }
+   // complete
+   return x + y;
+}
+
+foo(10, 20); // 30
+foo(10)(20); // 30;
+
+var partialFoo = foo(10); // function
+partialFoo(20); // 30</code></pre>
+
+<p>На практике <em>частичное применение</em> функции может пригодиться, когда необходимо часто вызывать функцию в которой одно из значений аргумента повторяется. Также иногда бывает необходимо заранее передать в функцию обработчик (<code>event handler</code>) некоторые данные. Тема <em>частичного применения</em> функции относится к некоторым математическим теоремам и к <a href="http://ru.wikipedia.org/wiki/%D0%9B%D1%8F%D0%BC%D0%B1%D0%B4%D0%B0-%D0%B8%D1%81%D1%87%D0%B8%D1%81%D0%BB%D0%B5%D0%BD%D0%B8%D0%B5">лямбда-исчислению</a> где функции могут принимать только один аргумент.</p>
+
+<pre><code>function foo(x, y) {
+    return x + y;
+}
+
+var partialFoo = foo.bind(null, 10);
+partialFoo(20); // 30</code></pre>
+
+<p>В последнем примере значение <code>this</code> для нас не играет никакой роли, так как в функции мы его не используем.</p>
+
+<h4>Реализация.</h4>
+
+<p>Реализация метода <code>bind</code> в <code>ES5</code> отличается от версии, которую используют в <code>ES3</code>. В функциях, которые получаются путем использования метода <code>bind</code>, отсутствуют некоторые внутренние св-ва, которые присутствуют у обычных функций. Это сделано для оптимизации. Такие функции не имеют таких свойств как: <code>prototype</code>, <code>[[Code]]</code> (тело функции — код), <code>[[FormalParameters]]</code> (список формальных параметров функции), а также <code>[[Scope]]</code> (лексическая область видимости, в которой была создана функция).</p>
+
+<p>В то же время такие функции имеют ряд дополнительных внутренних свойств: <code>[[TargetFunction]]</code> — ссылка на оригинальную функцию; <code>[[BoundThis]]</code> — связанное значение <code>this</code>; <code>[[BoundArgs]]</code> — связанные аргументы, которые используются в <code>partial function</code>.</p>
+
+<p>Три внутренних метода у bound-функции — <code>[[Call]]</code>, <code>[[Construct]]</code> и <code>[[HasInstance]]</code> переопределены.</p>
+
+<p>Внутренний метод  <code>[[Call]]</code> функции вызывается каждый раз, когда функция активируется (к примеру, вызов функции <code>foo()</code> или когда к функции применяются методы <code>call</code> и <code>apply</code>).</p>
+
+<p>После того, как внутренний метод <code>[[Call]]</code>  bound-функции отработает, вызывается оригинальный метод <code>[[Call]]</code> передавая нужное значение <code>this</code>. Это можно представить на псевдо-коде так:</p>
+
+<pre><code>boundFn.[[Call]] = function(thisValue, extraArgs):
+    var boundArgs = boundFn.[[BoundArgs]],
+        boundThis = boundFn.[[BoundThis]],
+        targetFn = boundFn.[[TargetFunction]],
+        args = boundArgs.concat(extraArgs);
+
+    return targetFn.[[Call]](boundThis, args);</code></pre>
+
+<p>Далее вызывается стандартный метод функции <code>[[Call]]</code>, который устанавливает контекст исполнения для свойства <code>[[Code]]</code> (см. <a href="http://es5.github.com/#x13.2.1]">раздел 13.2.1 — [[Call]]</a>).</p>
+
+<pre><code>function F(x, y) {
+    this.x = x;
+    this.y = y;
+    return this;
+}
+
+// связываем значение "this" и передаем аргумент "x"
+var BoundF = F.bind({z: 30}, 10);
+
+// создаем объект и передаем аргумент "y"
+var objectFromCall = boundF(20);
+
+// т.к. значение "this" внутри BoundF указывает на
+// объект {z: 30} мы получаем:
+alert([
+    objectFromCall.x, // 10, из [[BoundArgs]]
+    objectFromCall.y, // 20, из extraArgs
+    objectFromCall.z  // 30, из [[BoundThis]]
+]);</code></pre>
+
+<p>Если внимательно посмотреть на псевдо-код работы <code>[[Call]]</code> метода bound-функции, то можно заметить, что значение <code>this</code> (первый аргумент <code>thisValue</code>) нигде не участвует, а только <code>[[BoundThis]]</code> будет передаваться в оригинальный <code>[[Call]]</code>. Таким образом, даже вызывая функцию с использованием методов <code>call</code> и <code>apply</code> значение <code>this</code> не изменится:</p>
+
+<pre><code>var b = BoundF.call({z: 40});
+alert(b.z); // по-прежнему 30</code></pre>
+
+<p>Перегруженный метод <code>[[Construct]]</code> (<a href="http://es5.github.com/#x15.3.4.5.2">15.3.4.5.2</a>) после своего выполнения также передаст управление оригинальному методу <code>[[Construct]]</code>, который описан в секции <a href="http://es5.github.com/#x13.2.2">13.2.2</a>. Есть одно важное замечание при использовании bound-функции в качестве конструктора. Оригинальный метод <code>[[Construct]]</code> вызывается, после того как отработает перегруженный метод <code>[[Construct]]</code>, далее активируется <strong>оригинальный</strong> метод <code>[[Call]]</code>, а не перегруженный. Это означает, что в качестве значения <code>this</code> будет использоваться <strong>только что созданный объект</strong>, а не <em>связанное значение</em>.</p>
+
+<p>Это довольно логично, но некоторым может показаться странным такое поведение. Это важное отличие от реализации метода <code>bind</code> на JavaScript. Так метод <code>bind</code> в библиотеке <code>Prototype.js</code> всегда использует связанное значение <code>this</code>. Т.о. если в конструкторе явно возвращается значение <code>this</code> то мы получим связанное значение. В противном случае результат bound-функции конструктора неопределен и зависит от возвращаемого значения bound-функции.</p>
+
+<p>По большому счету, невозможно реализовать на JavaScript метод <code>bind</code>, который будет полностью удовлетворять реализации <code>ES5</code>. Но можно добиться <a href="http://code.google.com/p/js-examples/source/browse/trunk/bind_emulation.js">приемлемой эмуляции</a>.</p>
+
+<p>В реализации <code>bind</code> метода в редакции <code>ES5</code>, мы получим следующие результат:</p>
+
+<pre><code>// добавим св-во в прототип объекта
+F.prototype.a = 40;
+
+// 15.3.4.5.2 [[Construct]]  для bound-функции
+var objectFromConstruct = new BoundF(20);
+
+alert([
+    objectFromConstruct.x, // 10, из [[BoundArgs]]
+    objectFromConstruct.y, // 20, из extraArgs
+    objectFromConstruct.z, // undefined, т.к. не используется [[BoundThis]]
+    objectFromConstruct.a  // 40, из прототипа F.prototype === objectFromConstruct.[[Prototype]]
+]); </code></pre>
+
+<p>Как видно из примера у bound-функции отсутствует св-во <code>prototype</code> и значение берется из прототипа оригинальной функции. Даже если мы вручную добавим это св-во в bound-функцию, ничего не изменится, т.к. <code>[[Construct]]</code> и <code>[[Call]]</code> используют внутри оригинальную функцию.</p>
+
+<pre><code>alert(BoundF.prototype); // undefined
+
+BoundF.prototype = {
+    constructor: BoundF,
+    a: 100,
+    b: 200
+};
+
+var objectFromConstruct2 = new BoundF;
+// св-ва по прежнему берутся из прототипа оригинальной функции
+alert([
+    objectFromConstruct2.a // 40, из F.prototype а не 100
+    objectFromConstruct2.b // undefined
+]);</code></pre>
+
+<p>Резюмируя:</p>
+
+<ul>
+<li>Простой вызов — <code>BoundF()</code> — используется <code>boundThis</code>;</li>
+<li><code>call/apply</code> — <code>BoundF.call(manualThis) — используется</code>boundThis`;</li>
+<li>Вызов в качестве конструктора — <code>new BoundF()</code> — используется только что созданный объект;</li>
+</ul>
+
+<p>Перегруженный метод <code>[[HasInstance]]</code> (<a href="http://es5.github.com/#x15.3.4.5.3">15.3.4.5.3</a>) после своего выполнения передает управление оригинальному методу <code>[[HasInstance]]</code> (<a href="http://es5.github.com/#x15.3.5.3">15.3.5.3</a>). Этот внутренний метод используется оператором <code>instanceof</code>, который возвращает <code>true</code> как для оригинальной так и для bound функций:</p>
+
+<pre><code>alert([
+    objectFromConstruct instanceof F, // true
+    objectFromConstruct instanceof BoundF // true
+]);</code></pre>
+
+<p>Нужно отметить, что из-за такой делегации оператор <code>instanceof</code> вернет <code>true</code> даже для того объекта, который был создан через конструктор оригинальной функции:</p>
+
+<pre><code>var object = new F;
+
+alert([
+    object instanceof F, // true
+    object instanceof BoundF // true
+]);</code></pre>
+
+<p>Это также относится к использованию метода <code>Object.create</code>. Даже если мы определим св-во <code>prototype</code> у <code>BoundF</code> и передадим его в качестве первого аргумента в <code>Object.create</code>, оператор <code>instanceof</code> вернет <code>false</code> как для оригинальной функции конструктора, так и для bound-функции конструктора:</p>
+
+<pre><code>var boundProto = {
+    constructor: BoundF
+};
+
+BoundF.prototype = boundProto;
+
+var foo = Object.create(BoundF.prototype);
+console.log(Object.getPrototypeOf(foo) === BoundF.prototype); // true
+
+// из-за перегруженного [[HasInstance]],
+// который в итоге вызовет F.[[HasInstance]] мы получим false
+console.log(foo instanceof BoundF); // false
+console.log(foo instanceof F); // false
+
+var bar = Object.create(F.prototype);
+console.log(bar instanceof BoundF); //true
+console.log(bar instanceof F); // true
+
+// но если мы установим F.prototype
+// в нужный нам объект, то instanceof
+// вернет true
+F.prototype = boundProto;
+console.log(foo instanceof BoundF); // true
+console.log(foo instanceof F); // true</code></pre>
+
+<p>Есть и еще одна особенность у bound-функций. Если у такой функции попытаться запросить св-во <code>caller</code> или <code>arguments</code> то немедленно будет брошено исключение <code>TypeError</code> даже в <code>non-strict</code> режиме, в отличие от обычных функций:</p>
+
+<pre><code>alert([
+    F.caller, // ошибка только в strict режиме
+    F.arguments, // ошибка только в strict режиме
+
+    BoundF.caller, // всегда ошибка
+    BoundF.arguments // всегда ошибка
+]);</code></pre>
+
+<h4>Функция конструктор с различным количеством аргументов.</h4>
+
+<p>На <a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Function/bind#Supplemental">MDC</a> была описана интересная техника использования функции конструктора с различным количеством аргументов. Для этого в конструктор, в качестве аргумента передается массив с нужными значениями. Получается некоторое подобие <code>Function.prototype.apply</code>, но с возможностью использования с ключевым словом <code>new</code> — для использования функции как конструктор. Ниже представлена немного модифицированная версия примера с MDC:</p>
+
+<pre><code>Function.prototype.construct = function(args) {
+    var boundArgs = [].concat.apply(null, args),
+        boundFn = this.bind.apply(this, boundArgs);
+
+    return new boundFn();
+};
+
+function Point(x, y) {
+    this.x = x;
+    this.y = y;
+}
+
+var point = Point.construct([2, 4]);
+console.log(point.x, point.y) // 2, 4</code></pre>
+
+<p>Но нужно помнить, что такой подход не очень эффективен, так как при каждом вызове создается <code>bound</code>-функция.</p></div> 
+        </div> <!-- End wrapper --> 
+        <div id="bottom-fader"></div> 
+    </body> 
+</html>
